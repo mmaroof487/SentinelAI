@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SentinelAI",
     description="AI-Powered Traffic Enforcement Command Center",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -38,7 +38,11 @@ app.add_middleware(
 app.mount("/evidence", StaticFiles(directory=settings.EVIDENCE_DIR), name="evidence")
 
 # Import and include routers
-from app.routers import hotspots, violations, recommendations, alerts, offenders, corridors, briefing, detection, intelligence
+from app.routers import (
+    hotspots, violations, recommendations, alerts, offenders,
+    corridors, briefing, detection, intelligence,
+    simulator, events, dossier, audit
+)
 
 app.include_router(hotspots.router, prefix="/api", tags=["Hotspots"])
 app.include_router(violations.router, prefix="/api", tags=["Violations"])
@@ -49,7 +53,11 @@ app.include_router(corridors.router, prefix="/api", tags=["Corridors"])
 app.include_router(briefing.router, prefix="/api", tags=["Briefing"])
 app.include_router(detection.router, prefix="/api", tags=["Detection"])
 app.include_router(intelligence.router, prefix="/api", tags=["Intelligence"])
+app.include_router(simulator.router, prefix="/api", tags=["Simulator"])
+app.include_router(events.router, prefix="/api", tags=["Events"])
+app.include_router(dossier.router, prefix="/api", tags=["Dossier"])
+app.include_router(audit.router, prefix="/api", tags=["Audit"])
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "SentinelAI"}
+    return {"status": "ok", "service": "SentinelAI", "version": "2.0.0"}

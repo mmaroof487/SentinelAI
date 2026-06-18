@@ -1,4 +1,8 @@
-import type { Hotspot, Violation, Recommendation, Alert, Corridor, RepeatOffender, DailyBriefing, DetectionResult, IntelligenceResponse } from "./types";
+import type {
+  Hotspot, Violation, Recommendation, Alert, Corridor, CorridorForecast,
+  RepeatOffender, DailyBriefing, DetectionResult, IntelligenceResponse,
+  SimulationResult, EventSimulationResult, Dossier, ActionPlan, AuditLogEntry
+} from "./types";
 
 const BASE_URL = "/api";
 
@@ -12,6 +16,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 }
 
 export const api = {
+  // Existing endpoints
   getHotspots: (hours = 24) => fetchAPI<Hotspot[]>(`/hotspots?hours=${hours}`),
   getViolations: (params?: { junction_id?: number; type?: string; hours?: number; limit?: number }) => {
     const query = new URLSearchParams();
@@ -32,4 +37,22 @@ export const api = {
     method: "POST",
     body: JSON.stringify({ question }),
   }),
+
+  // New endpoints
+  getCorridorForecast: () => fetchAPI<CorridorForecast[]>("/corridors/forecast"),
+  simulate: (junction: string, deploymentType: string) => fetchAPI<SimulationResult>("/simulate", {
+    method: "POST",
+    body: JSON.stringify({ junction, deployment_type: deploymentType }),
+  }),
+  simulateEvent: (location: string, expectedCrowd: number, durationHours: number) =>
+    fetchAPI<EventSimulationResult>("/events/simulate", {
+      method: "POST",
+      body: JSON.stringify({ location, expected_crowd: expectedCrowd, duration_hours: durationHours }),
+    }),
+  getDossier: (plate: string) => fetchAPI<Dossier>(`/dossier/${encodeURIComponent(plate)}`),
+  getActionPlan: (location: string) => fetchAPI<ActionPlan>("/action-plan", {
+    method: "POST",
+    body: JSON.stringify({ location }),
+  }),
+  getAuditLog: () => fetchAPI<AuditLogEntry[]>("/audit-log"),
 };

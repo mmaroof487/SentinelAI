@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { DetectionResult } from "@/lib/types";
 import { DetectionResultViewer } from "./DetectionResultViewer";
 
-export function EvidenceUpload() {
+export function EvidenceUpload({ onDetectionComplete }: { onDetectionComplete?: (r: DetectionResult) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -37,6 +37,7 @@ export function EvidenceUpload() {
       const data = await api.detect(formData);
       if ((data as any).error) throw new Error((data as any).error);
       setResult(data);
+      onDetectionComplete?.(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed");
     } finally {
