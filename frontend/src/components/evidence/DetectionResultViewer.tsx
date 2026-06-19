@@ -113,7 +113,10 @@ export function DetectionResultViewer({ result, onReset }: { result: DetectionRe
                     </span>
                   </div>
                 ) : (
-                  <span className="text-sm text-slate-500 italic">Plate not readable</span>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-amber-500">Plate not confidently detected</span>
+                    <span className="text-xs text-slate-500">Manual Review Required</span>
+                  </div>
                 )}
               </div>
 
