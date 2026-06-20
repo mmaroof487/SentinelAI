@@ -55,4 +55,6 @@ export const api = {
     body: JSON.stringify({ location }),
   }),
   getAuditLog: () => fetchAPI<AuditLogEntry[]>("/audit-log"),
+  getPerformanceMetrics: () => fetchAPI<unknown>("/metrics/performance"),
+  getRecentActivity: () => fetchAPI<unknown>("/violations?limit=30"),
 };

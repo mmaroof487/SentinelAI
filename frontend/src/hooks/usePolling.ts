@@ -19,6 +19,7 @@ export function usePolling<T>(fetcher: () => Promise<T>, intervalMs = 18000) {
   }, [fetcher]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
     const id = setInterval(refresh, intervalMs);
     const onVisibility = () => {

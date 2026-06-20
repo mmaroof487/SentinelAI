@@ -13,21 +13,47 @@ def generate_case_id() -> str:
     rand = random.randint(1000, 9999)
     return f"TV-{now.strftime('%Y%m%d-%H%M%S')}-{rand}"
 
-def annotate_image(image_path: str, detection: dict, output_path: str):
-    """Draw bounding boxes on image and save."""
-    img = Image.open(image_path)
+def annotate_image(image_path: str, detection: dict, output_path: str, apply_privacy_blur: bool = False):
+    """Draw bounding boxes on image, blur non-offenders, and save."""
+    import cv2
+    import numpy as np
+
+    img_cv = cv2.imread(image_path)
+
+    if apply_privacy_blur and detection and "all_person_boxes" in detection:
+        all_persons = detection["all_person_boxes"]
+        offender_boxes = detection.get("person_boxes", [])
+        for pbox in all_persons:
+            is_offender = False
+            for obox in offender_boxes:
+                p_cx, p_cy = (pbox[0] + pbox[2]) / 2, (pbox[1] + pbox[3]) / 2
+                o_cx, o_cy = (obox[0] + obox[2]) / 2, (obox[1] + obox[3]) / 2
+                if abs(p_cx - o_cx) < 30 and abs(p_cy - o_cy) < 30:
+                    is_offender = True
+                    break
+            if not is_offender:
+                x1, y1, x2, y2 = [int(c) for c in pbox]
+                x1, y1 = max(0, x1), max(0, y1)
+                x2, y2 = min(img_cv.shape[1], x2), min(img_cv.shape[0], y2)
+                if x2 > x1 and y2 > y1:
+                    roi = img_cv[y1:y2, x1:x2]
+                    blurred = cv2.GaussianBlur(roi, (51, 51), 30)
+                    img_cv[y1:y2, x1:x2] = blurred
+
+    img = Image.fromarray(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(img)
 
     # Draw motorcycle box (green)
-    if "motorcycle_box" in detection:
+    if detection and detection.get("motorcycle_box"):
         box = detection["motorcycle_box"]
         draw.rectangle(box, outline="lime", width=3)
         draw.text((box[0], box[1] - 15), "Motorcycle", fill="lime")
 
     # Draw person boxes (red)
-    for i, pbox in enumerate(detection.get("person_boxes", [])):
-        draw.rectangle(pbox, outline="red", width=2)
-        draw.text((pbox[0], pbox[1] - 15), f"Person {i+1}", fill="red")
+    if detection:
+        for i, pbox in enumerate(detection.get("person_boxes", [])):
+            draw.rectangle(pbox, outline="red", width=2)
+            draw.text((pbox[0], pbox[1] - 15), f"Person {i+1}", fill="red")
 
     img.save(output_path)
 
@@ -40,6 +66,7 @@ def create_evidence_case(
     junction_lat: float,
     junction_lon: float,
     db: Session,
+    apply_privacy_blur: bool = True
 ) -> dict:
     """Create complete evidence case."""
     case_id = generate_case_id()
@@ -49,13 +76,13 @@ def create_evidence_case(
     annotated_filename = f"{case_id}.jpg"
     annotated_path = os.path.join(settings.EVIDENCE_DIR, annotated_filename)
     if detection:
-        annotate_image(image_path, detection, annotated_path)
+        annotate_image(image_path, detection, annotated_path, apply_privacy_blur)
     else:
         # Copy original if no detection
         Image.open(image_path).save(annotated_path)
 
     # Determine violation
-    violation_type = detection["violation"] if detection else "Unknown"
+    violation_type = detection["violation"] if detection and detection.get("violation") != "None" else "None"
     confidence = detection["confidence"] if detection else 0.0
 
     # Save to DB

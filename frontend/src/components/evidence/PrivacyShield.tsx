@@ -41,8 +41,20 @@ function Toggle({ enabled, onToggle, label, description }: {
   );
 }
 
-export function PrivacyShield() {
-  const [blurPedestrians, setBlurPedestrians] = useState(true);
+export function PrivacyShield({ 
+  blurPedestrians, 
+  setBlurPedestrians 
+}: { 
+  blurPedestrians?: boolean; 
+  setBlurPedestrians?: (v: boolean) => void;
+}) {
+  const [internalBlur, setInternalBlur] = useState(true);
+  const isBlurring = blurPedestrians !== undefined ? blurPedestrians : internalBlur;
+  const toggleBlur = () => {
+    if (setBlurPedestrians) setBlurPedestrians(!isBlurring);
+    else setInternalBlur(!isBlurring);
+  };
+
   const [blurVehicles, setBlurVehicles] = useState(false);
   const [retention, setRetention] = useState("30d");
   const { data: auditLog } = usePolling(api.getAuditLog, 30000);
@@ -73,8 +85,8 @@ export function PrivacyShield() {
         <div className="space-y-2">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">Privacy Controls</div>
           <Toggle
-            enabled={blurPedestrians}
-            onToggle={() => setBlurPedestrians(p => !p)}
+            enabled={isBlurring}
+            onToggle={toggleBlur}
             label="Blur Pedestrians"
             description="Automatically anonymize pedestrians in all captured images"
           />

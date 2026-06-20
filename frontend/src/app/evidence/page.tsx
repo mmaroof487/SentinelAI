@@ -11,6 +11,26 @@ export default function EvidencePage() {
   const [detection, setDetection] = useState<DetectionResult | null>(null);
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [loadingDossier, setLoadingDossier] = useState(false);
+  const [blurPedestrians, setBlurPedestrians] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchError, setSearchError] = useState("");
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setLoadingDossier(true);
+    setSearchError("");
+    try {
+      const d = await api.getDossier(searchQuery.toUpperCase().trim());
+      setDossier(d);
+      setDetection(null);
+    } catch {
+      setDossier(null);
+      setSearchError(`No violation history found for plate ${searchQuery}`);
+    } finally {
+      setLoadingDossier(false);
+    }
+  };
 
   const handleDetection = async (result: DetectionResult) => {
     setDetection(result);
@@ -48,8 +68,36 @@ export default function EvidencePage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: Upload + Detection */}
         <div className="lg:col-span-2 space-y-4">
+          
+          {/* Search Bar */}
+          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+            <div className="text-sm font-semibold text-slate-300">Dossier Lookup</div>
+            <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search plate (e.g. KA05MX4421)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-cyan-500/50 uppercase w-64 placeholder:normal-case"
+              />
+              <button
+                type="submit"
+                disabled={loadingDossier}
+                className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-sm transition-colors"
+              >
+                Search
+              </button>
+            </form>
+          </div>
+
+          {searchError && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-sm">
+              {searchError}
+            </div>
+          )}
+
           <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-5 min-h-[400px]">
-            <EvidenceUploadWithCallback onDetection={handleDetection} />
+            <EvidenceUploadWithCallback onDetection={handleDetection} blurPedestrians={blurPedestrians} />
           </div>
 
           {/* Auto-generated Dossier */}
@@ -83,7 +131,7 @@ export default function EvidencePage() {
 
         {/* Right: Privacy Shield */}
         <div className="lg:col-span-1">
-          <PrivacyShield />
+          <PrivacyShield blurPedestrians={blurPedestrians} setBlurPedestrians={setBlurPedestrians} />
         </div>
       </div>
     </div>
@@ -91,10 +139,10 @@ export default function EvidencePage() {
 }
 
 // Wrapper to intercept detection result from EvidenceUpload
-function EvidenceUploadWithCallback({ onDetection }: { onDetection: (r: DetectionResult) => void }) {
+function EvidenceUploadWithCallback({ onDetection, blurPedestrians }: { onDetection: (r: DetectionResult) => void, blurPedestrians: boolean }) {
   // EvidenceUpload manages its own state; we use a wrapper approach
   // by re-using the component as-is and listening for the result via a custom hook/prop
   // Since EvidenceUpload doesn't accept a callback, we embed it directly
   // and the dossier fetch is triggered from the parent via the detection prop
-  return <EvidenceUpload onDetectionComplete={onDetection} />;
+  return <EvidenceUpload onDetectionComplete={onDetection} blurPedestrians={blurPedestrians} />;
 }

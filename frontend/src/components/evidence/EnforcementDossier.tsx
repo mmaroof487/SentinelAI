@@ -35,8 +35,33 @@ const THREAT_STYLES: Record<string, { border: string; badge: string; glow: strin
 export function EnforcementDossier({ dossier }: EnforcementDossierProps) {
   const styles = THREAT_STYLES[dossier.threat_level] || THREAT_STYLES.MEDIUM;
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+      
+      const element = document.getElementById('enforcement-dossier');
+      if (!element) return;
+      
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#020617', // slate-950 roughly
+        useCORS: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width / 2, canvas.height / 2]
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save(`dossier-${dossier.case_id}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF', err);
+      window.print();
+    }
   };
 
   return (

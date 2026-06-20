@@ -19,9 +19,18 @@ def detect_triple_riding(image_path: str) -> dict | None:
     motorcycles = [b for b in boxes if int(b.cls[0]) == MOTORCYCLE_CLASS]
     persons = [b for b in boxes if int(b.cls[0]) == PERSON_CLASS]
 
-    if not motorcycles:
-        return None
+    all_persons = [[float(x) for x in p.xyxy[0].tolist()] for p in persons]
 
+    if not motorcycles:
+        return {
+            "violation": "None",
+            "confidence": 0.0,
+            "vehicle": "unknown",
+            "persons_detected": len(persons),
+            "motorcycle_box": None,
+            "person_boxes": [],
+            "all_person_boxes": all_persons,
+        }
     for moto in motorcycles:
         mx1, my1, mx2, my2 = moto.xyxy[0].tolist()
         rider_count = 0
@@ -44,6 +53,15 @@ def detect_triple_riding(image_path: str) -> dict | None:
                 "persons_detected": rider_count,
                 "motorcycle_box": [mx1, my1, mx2, my2],
                 "person_boxes": person_boxes,
+                "all_person_boxes": all_persons,
             }
 
-    return None
+    return {
+        "violation": "None",
+        "confidence": 0.0,
+        "vehicle": "motorcycle",
+        "persons_detected": len(persons),
+        "motorcycle_box": [mx1, my1, mx2, my2] if motorcycles else None,
+        "person_boxes": [],
+        "all_person_boxes": all_persons,
+    }

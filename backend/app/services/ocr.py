@@ -137,9 +137,10 @@ def try_extract_plate(text):
     return None
 
 
-def extract_plate(image_path: str) -> dict:
+def extract_plate(image_path: str, crop_box: list[float] | None = None) -> dict:
     """
     Extract license plate text from image.
+    Optionally crops to a specific region (like motorcycle bounding box) before OCR.
     Returns: {"plate": "KA05MX4421", "plate_confidence": 0.87} or {"plate": None, "plate_confidence": 0}
     """
     r = get_reader()
@@ -155,6 +156,21 @@ def extract_plate(image_path: str) -> dict:
 
     if img is None:
         return {"plate": None, "plate_confidence": 0.0}
+
+    # Localization: Crop to the region of interest (e.g., motorcycle)
+    if crop_box:
+        x1, y1, x2, y2 = [int(v) for v in crop_box]
+        h, w = img.shape[:2]
+        
+        # Add 20px padding to ensure plate is fully captured
+        pad = 20
+        x1 = max(0, x1 - pad)
+        y1 = max(0, y1 - pad)
+        x2 = min(w, x2 + pad)
+        y2 = min(h, y2 + pad)
+        
+        if x2 > x1 and y2 > y1:
+            img = img[y1:y2, x1:x2]
 
     # Try multiple preprocessed variants for best OCR result
     variants = preprocess_plate_image(img)

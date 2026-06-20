@@ -41,7 +41,7 @@ app.mount("/evidence", StaticFiles(directory=settings.EVIDENCE_DIR), name="evide
 from app.routers import (
     hotspots, violations, recommendations, alerts, offenders,
     corridors, briefing, detection, intelligence,
-    simulator, events, dossier, audit
+    simulator, events, dossier, audit, metrics
 )
 
 app.include_router(hotspots.router, prefix="/api", tags=["Hotspots"])
@@ -52,6 +52,7 @@ app.include_router(offenders.router, prefix="/api", tags=["Offenders"])
 app.include_router(corridors.router, prefix="/api", tags=["Corridors"])
 app.include_router(briefing.router, prefix="/api", tags=["Briefing"])
 app.include_router(detection.router, prefix="/api", tags=["Detection"])
+app.include_router(metrics.router, prefix="/api", tags=["Metrics"])
 app.include_router(intelligence.router, prefix="/api", tags=["Intelligence"])
 app.include_router(simulator.router, prefix="/api", tags=["Simulator"])
 app.include_router(events.router, prefix="/api", tags=["Events"])

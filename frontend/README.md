@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SentinelAI Frontend 🚀
+
+This is the Next.js frontend application for the SentinelAI Traffic Movement Intelligence Platform, built for the Flipkart Gridlock Hackathon.
+
+## Features
+
+- **Command Center**: The primary dashboard showing the Digital Twin map, active alerts, repeat offenders, enforcement simulator, and live performance metrics.
+- **Evidence Processing**: An interface to upload traffic camera snapshots, run inference, view bounded boxes, blur bystanders via the Privacy Shield, and export PDF Dossiers.
+- **Intelligence Engine**: A conversational AI interface backed by Google Gemini 2.0 Flash to query real-time database stats.
+- **Simulation**: Tools for predicting impact of targeted deployments and large-scale urban events.
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4, shadcn/ui
+- **Icons**: Lucide React
+- **Mapping**: React Leaflet
+- **Data Visualization**: Recharts
+- **PDF Export**: html2canvas, jsPDF
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development Status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- ✅ Command Center & Live Telemetry
+- ✅ Privacy Shield (Gaussian Blur implementation)
+- ✅ YOLOv8 + OCR Evidence Viewer
+- ✅ PDF Dossier Export
+- ✅ Gemini 2.0 Flash Integration
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All endpoints expect the backend to be running on `http://localhost:8000` locally. This is configured automatically via the Next.js `next.config.ts` rewrite rules.

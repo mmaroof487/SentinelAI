@@ -11,7 +11,7 @@ interface Junction {
   name: string;
 }
 
-export function EvidenceUpload({ onDetectionComplete }: { onDetectionComplete?: (r: DetectionResult) => void }) {
+export function EvidenceUpload({ onDetectionComplete, blurPedestrians = true }: { onDetectionComplete?: (r: DetectionResult) => void, blurPedestrians?: boolean }) {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -49,10 +49,11 @@ export function EvidenceUpload({ onDetectionComplete }: { onDetectionComplete?: 
     const formData = new FormData();
     formData.append("image", file);
     formData.append("junction_id", String(selectedJunction));
+    formData.append("blur_pedestrians", blurPedestrians ? "true" : "false");
 
     try {
       const data = await api.detect(formData);
-      if ((data as any).error) throw new Error((data as any).error);
+      if ((data as { error?: string }).error) throw new Error((data as { error?: string }).error);
       setResult(data);
       onDetectionComplete?.(data);
     } catch (e) {

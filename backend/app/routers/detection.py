@@ -21,6 +21,7 @@ def list_junctions(db: Session = Depends(get_db)):
 async def detect_violation(
     image: UploadFile = File(...),
     junction_id: int = Form(...),
+    blur_pedestrians: bool = Form(True),
     db: Session = Depends(get_db),
 ):
     """Upload image → detect violation → OCR → create case."""
@@ -46,7 +47,9 @@ async def detect_violation(
         t_start = time.time()
         detection = detect_triple_riding(temp_path)
         t_detect = time.time()
-        ocr_result = extract_plate(temp_path)
+        
+        crop_box = detection.get("motorcycle_box") if detection else None
+        ocr_result = extract_plate(temp_path, crop_box=crop_box)
         t_ocr = time.time()
 
         # Create evidence case
@@ -59,6 +62,7 @@ async def detect_violation(
             junction_lat=j["lat"],
             junction_lon=j["lon"],
             db=db,
+            apply_privacy_blur=blur_pedestrians,
         )
 
         # Add performance metrics

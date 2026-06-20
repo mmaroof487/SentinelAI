@@ -3,11 +3,14 @@ import dynamic from 'next/dynamic';
 import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { RepeatOffenders } from "@/components/dashboard/RepeatOffenders";
 import { EnforcementSimulator } from "@/components/dashboard/EnforcementSimulator";
+import { SystemPerformance } from "@/components/dashboard/SystemPerformance";
 import { SystemBootOverlay } from "@/components/dashboard/SystemBootOverlay";
 import { usePolling } from "@/hooks/usePolling";
 import { api } from "@/lib/api";
 import { useState } from "react";
 import { Globe, Layers } from "lucide-react";
+import { ScrollingTicker } from "@/components/dashboard/ScrollingTicker";
+import { LiveViolationCounter } from "@/components/dashboard/LiveViolationCounter";
 
 const DigitalTwin = dynamic(
   () => import('@/components/dashboard/DigitalTwinMap'),
@@ -44,6 +47,7 @@ export default function CommandCenter() {
           <span className="font-bold text-sm uppercase tracking-widest">Traffic Digital Twin</span>
         </div>
         <div className="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent" />
+        <LiveViolationCounter />
         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
           <Layers className="w-3.5 h-3.5" />
           5 ACTIVE LAYERS
@@ -84,8 +88,13 @@ export default function CommandCenter() {
           <div className="shrink-0">
             <EnforcementSimulator defaultJunction={selectedJunction} />
           </div>
+          {/* System Performance */}
+          <div className="shrink-0 pb-4">
+            <SystemPerformance />
+          </div>
         </div>
       </div>
+      <ScrollingTicker />
     </div>
     </>
   );
