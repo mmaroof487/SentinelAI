@@ -104,6 +104,7 @@ export interface DetectionResult {
   annotated_image_url: string;
   junction: string;
   timestamp: string;
+  traffic_light_state?: "RED" | "GREEN" | "UNKNOWN";
   inference_time?: {
     detection_ms: number;
     ocr_ms: number;

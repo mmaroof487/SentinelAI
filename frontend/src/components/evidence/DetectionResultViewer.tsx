@@ -3,7 +3,7 @@ import { DetectionResult } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertOctagon, ScanLine, Car, MapPin, Clock, ArrowLeft, Zap, Timer, CheckCircle } from "lucide-react";
+import { AlertOctagon, ScanLine, Car, MapPin, Clock, ArrowLeft, Zap, Timer, CheckCircle, TrafficCone } from "lucide-react";
 
 export function DetectionResultViewer({ result, onReset }: { result: DetectionResult, onReset: () => void }) {
   const isViolation = result.violation !== "Unknown" && result.violation !== "None";
@@ -67,6 +67,17 @@ export function DetectionResultViewer({ result, onReset }: { result: DetectionRe
                     </Badge>
                   )}
                 </div>
+                {/* Traffic Light State Badge */}
+                {result.traffic_light_state && result.traffic_light_state !== "UNKNOWN" && (
+                  <div className={`flex items-center gap-1.5 text-xs font-mono px-2 py-1 rounded border ${
+                    result.traffic_light_state === "RED"
+                      ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                      : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                  }`}>
+                    <TrafficCone className="w-3 h-3" />
+                    TL: {result.traffic_light_state}
+                  </div>
+                )}
               </div>
 
               {isViolation ? (

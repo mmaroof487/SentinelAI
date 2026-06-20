@@ -72,6 +72,9 @@ async def detect_violation(
             "total_ms": round((t_ocr - t_start) * 1000),
         }
 
+        # Pass traffic light state to frontend
+        result["traffic_light_state"] = detection.get("traffic_light_state", "UNKNOWN") if detection else "UNKNOWN"
+
         return result
     finally:
         if os.path.exists(temp_path):

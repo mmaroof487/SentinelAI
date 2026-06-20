@@ -43,7 +43,7 @@ A Next.js-powered live dashboard featuring:
 
 ### 2. Evidence Processing Pipeline
 - **AI Inference**: Uses `YOLOv8m` for triple-riding/helmet detection, followed by precise bounding-box cropping.
-- **OCR Localization**: Crops to the exact bounding box of the violating motorcycle *before* passing to EasyOCR, ensuring 95%+ accuracy even on low-res cameras.
+- **OCR Localization**: Crops to the exact bounding box of the violating vehicle *before* passing to EasyOCR, significantly improving plate extraction accuracy vs. full-frame OCR. Evaluated on internal test images using CLAHE, Otsu, and adaptive threshold variants.
 - **Privacy Shield**: Uses `cv2.GaussianBlur` to actively blur the faces/bodies of pedestrians and bystanders who are *not* part of the violation.
 - **Auto-Generated Dossiers**: Every processed violation generates a printable, exportable **PDF Enforcement Dossier** detailing the offender's risk score and movement timeline.
 

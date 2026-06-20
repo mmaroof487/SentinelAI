@@ -148,6 +148,7 @@ export function EvidenceUpload({ onDetectionComplete, blurPedestrians = true }: 
                   <Button variant="outline" size="sm" onClick={() => loadExample("numberplate.jpg")} className="border-slate-700 bg-slate-900/50 text-xs">Number Plate</Button>
                   <Button variant="outline" size="sm" onClick={() => loadExample("redlight.jpg")} className="border-red-500/50 bg-red-500/10 text-xs text-red-300 hover:bg-red-500/20">🔴 Red Light</Button>
                   <Button variant="outline" size="sm" onClick={() => loadExample("greenlight.jpg")} className="border-green-500/50 bg-green-500/10 text-xs text-green-300 hover:bg-green-500/20">🟢 Green Light</Button>
+                  <Button variant="outline" size="sm" onClick={() => loadExample("wrongside.jpg")} className="border-orange-500/50 bg-orange-500/10 text-xs text-orange-300 hover:bg-orange-500/20">⚠️ Wrong Side</Button>
                   <Button variant="outline" size="sm" onClick={() => loadExample("novoilation.jpg")} className="border-slate-700 bg-slate-900/50 text-xs">Clean Record</Button>
                 </div>
               </div>

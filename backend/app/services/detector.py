@@ -73,11 +73,97 @@ def check_seatbelt(crop_img):
                 return True
     return False
 
+
+def detect_wrong_side_driving(img_cv: np.ndarray, vehicles: list) -> bool:
+    """
+    Heuristic wrong-side driving detection from a single traffic camera frame.
+
+    Strategy:
+    ─────────
+    1. Crop the lower 60% of the image (road surface; excludes sky and signage).
+    2. Apply Canny edge detection + HoughLinesP to find lane-marking candidates.
+    3. Split detected lines into left-of-centre and right-of-centre groups to
+       estimate the left and right lane boundaries and, from them, the road centre.
+    4. In India (left-hand traffic), approaching vehicles belong on the LEFT side of
+       the camera frame. A vehicle whose bounding-box centre-x sits RIGHT of the
+       estimated road centre (plus a 10 % tolerance margin) is flagged as wrong-side.
+
+    Assumptions:
+    ─────────────
+    Camera is mounted facing oncoming traffic on a two-way road with visible lane
+    markings. Results on close-up or interior images without clear road lines are
+    suppressed by requiring at least one confidently detected lane line on each side.
+    """
+    if not vehicles:
+        return False
+
+    h, w = img_cv.shape[:2]
+
+    # Region of interest: lower 60% = road surface only
+    roi_y = int(h * 0.4)
+    roi = img_cv[roi_y:, :]
+
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 50, 150)
+
+    lines = cv2.HoughLinesP(
+        edges, 1, np.pi / 180,
+        threshold=40,
+        minLineLength=int(w * 0.08),   # at least 8% of frame width
+        maxLineGap=30,
+    )
+
+    # Default centre = image centre when no lane lines are found
+    road_left_x = 0.0
+    road_right_x = float(w)
+    left_found = False
+    right_found = False
+
+    if lines is not None:
+        left_xs, right_xs = [], []
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            # Ignore nearly horizontal lines — not lane markers
+            if abs(y2 - y1) < 10:
+                continue
+            cx = (x1 + x2) / 2.0
+            if cx < w / 2:
+                left_xs.append(cx)
+            else:
+                right_xs.append(cx)
+
+        if left_xs:
+            road_left_x = float(max(left_xs))   # rightmost of left-side lines
+            left_found = True
+        if right_xs:
+            road_right_x = float(min(right_xs))  # leftmost of right-side lines
+            right_found = True
+
+    # Only proceed when BOTH lane boundaries are detected; requires a proper road-camera
+    # perspective with visible markings on both sides. This suppresses false positives
+    # on close-up, interior, or wide-angle images without clear road geometry.
+    if not left_found or not right_found:
+        return False
+
+    road_center_x = (road_left_x + road_right_x) / 2.0
+    margin = w * 0.10  # 10 % tolerance to reduce false positives
+
+    for v in vehicles:
+        vx1, _, vx2, _ = v.xyxy[0].tolist()
+        vehicle_cx = (vx1 + vx2) / 2.0
+        # Vehicle centre is right of road centre + margin → wrong side
+        if vehicle_cx > road_center_x + margin:
+            return True
+
+    return False
+
 def analyze_traffic_scene(image_path: str) -> dict:
     """
     Modular detection pipeline:
     - Traffic Light state
     - Vehicle (Stop Line Violation on Red)
+    - Vehicle (Wrong-Side Driving via lane-line analysis)
     - Motorcycle (Triple Riding, No Helmet)
     - Enclosed Vehicle (No Seatbelt)
     """
@@ -120,7 +206,14 @@ def analyze_traffic_scene(image_path: str) -> dict:
                 
     if red_light_violation:
         violations.append("Red Light Violation")
-        
+
+    # --- 2b. Wrong-Side Driving Detection ---
+    # Uses Hough lane-line analysis on the road ROI to find the road centre.
+    # Flags any vehicle whose centre-x is right of the estimated road centre
+    # (India drives on the left; approaching vehicles should be on the left half).
+    if detect_wrong_side_driving(img_cv, vehicles):
+        violations.append("Wrong-Side Driving")
+
     # --- 3. Motorcycle Processing (Triple Riding, No Helmet) ---
     motorcycles = [b for b in boxes if int(b.cls[0]) == MOTORCYCLE_CLASS]
     persons = [b for b in boxes if int(b.cls[0]) == PERSON_CLASS]
