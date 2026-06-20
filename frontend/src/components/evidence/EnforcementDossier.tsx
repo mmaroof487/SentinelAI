@@ -2,7 +2,7 @@
 import { Dossier } from "@/lib/types";
 import {
   FileText, AlertOctagon, MapPin, Clock, Shield, ChevronRight,
-  TrendingUp, Hash, Printer
+  TrendingUp, Hash, Printer, User, Car, Calendar, ShieldCheck, AlertCircle
 } from "lucide-react";
 
 interface EnforcementDossierProps {
@@ -125,6 +125,74 @@ export function EnforcementDossier({ dossier }: EnforcementDossierProps) {
             </div>
           ))}
         </div>
+
+        {/* Vehicle Registration Details */}
+        {dossier.registration && (
+          <div className="bg-slate-950/40 rounded-xl p-3 border border-slate-800 space-y-3">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5 border-b border-slate-800/60 pb-1.5">
+              <Car className="w-3.5 h-3.5 text-cyan-400" />
+              RTO Vehicle Registry Linkage
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold flex items-center gap-1">
+                  <User className="w-3 h-3 text-slate-500" /> Registered Owner
+                </div>
+                <div className="font-bold text-slate-200">{dossier.registration.owner_name}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold flex items-center gap-1">
+                  <Car className="w-3 h-3 text-slate-500" /> Vehicle Model
+                </div>
+                <div className="font-bold text-slate-200">{dossier.registration.make_model}</div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-slate-500" /> Registered RTO
+                </div>
+                <div className="text-slate-300 font-medium truncate" title={dossier.registration.rto_location}>
+                  {dossier.registration.rto_location}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-slate-500" /> Registration Date
+                </div>
+                <div className="text-slate-300 font-medium">
+                  {new Date(dossier.registration.registration_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between pt-1.5 border-t border-slate-800/50">
+              <div className="flex items-center gap-2">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold">Insurance:</div>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border flex items-center gap-1 ${
+                  dossier.registration.insurance_status === "VALID" 
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                    : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                }`}>
+                  <ShieldCheck className="w-3 h-3" />
+                  {dossier.registration.insurance_status}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="text-[9px] uppercase text-slate-500 font-semibold">RTO Status:</div>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border flex items-center gap-1 ${
+                  dossier.registration.status === "ACTIVE" 
+                    ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+                    : dossier.registration.status === "BLACKLISTED"
+                    ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                    : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                }`}>
+                  <AlertCircle className="w-3 h-3" />
+                  {dossier.registration.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Movement Timeline */}
         <div>

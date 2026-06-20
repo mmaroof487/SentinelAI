@@ -3,7 +3,7 @@ import { DetectionResult } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertOctagon, ScanLine, Car, MapPin, Clock, ArrowLeft, Zap, Timer, CheckCircle, TrafficCone } from "lucide-react";
+import { AlertOctagon, ScanLine, Car, MapPin, Clock, ArrowLeft, Zap, Timer, CheckCircle, TrafficCone, User, ShieldCheck } from "lucide-react";
 
 export function DetectionResultViewer({ result, onReset }: { result: DetectionResult, onReset: () => void }) {
   const isViolation = result.violation !== "Unknown" && result.violation !== "None";
@@ -175,6 +175,47 @@ export function DetectionResultViewer({ result, onReset }: { result: DetectionRe
                   </div>
                 )}
               </div>
+
+              {/* Linked Registration Info */}
+              {result.registration && (
+                <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="text-[10px] uppercase text-slate-500 font-bold tracking-wider border-b border-slate-800 pb-1.5 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                    Verified RTO Registry Linkage
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <div className="text-[9px] text-slate-500 uppercase font-semibold">Owner</div>
+                      <div className="font-bold text-slate-300 flex items-center gap-1 mt-0.5">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        {result.registration.owner_name}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] text-slate-500 uppercase font-semibold">Model</div>
+                      <div className="font-bold text-slate-300 truncate mt-0.5" title={result.registration.make_model}>
+                        {result.registration.make_model}
+                      </div>
+                    </div>
+                    <div className="mt-1">
+                      <div className="text-[9px] text-slate-500 uppercase font-semibold">Class</div>
+                      <div className="text-slate-400 mt-0.5">{result.registration.vehicle_class}</div>
+                    </div>
+                    <div className="mt-1">
+                      <div className="text-[9px] text-slate-500 uppercase font-semibold">Status</div>
+                      <span className={`inline-block text-[9px] font-bold uppercase rounded px-1.5 py-0.5 border mt-0.5 ${
+                        result.registration.status === "ACTIVE" 
+                          ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+                          : result.registration.status === "BLACKLISTED"
+                          ? "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                          : "bg-amber-500/10 border-amber-500/30 text-amber-400"
+                      }`}>
+                        {result.registration.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {result.is_repeat_offender && result.repeat_offender_data && (
                 <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/30">

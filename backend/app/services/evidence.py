@@ -107,7 +107,11 @@ def create_evidence_case(
     # Check repeat offender
     is_repeat = False
     offender_data = None
+    registration = None
     if ocr_result.get("plate"):
+        from app.services.dossier import get_or_create_registration
+        registration = get_or_create_registration(db, ocr_result["plate"])
+
         rows = execute_raw(db, """
             SELECT plate, sightings, distinct_junctions, last_seen, junctions_list
             FROM repeat_offenders WHERE plate = :plate
@@ -137,6 +141,7 @@ def create_evidence_case(
         "plate_confidence": ocr_result.get("plate_confidence", 0.0),
         "is_repeat_offender": is_repeat,
         "repeat_offender_data": offender_data,
+        "registration": registration,
         "annotated_image_url": f"/evidence/{annotated_filename}",
         "junction": junction_name,
         "timestamp": now.isoformat(),
