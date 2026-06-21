@@ -45,7 +45,7 @@ A Next.js-powered live dashboard featuring:
 ### 2. Evidence Processing Pipeline
 - **Image Normalization**: Optional toggle applies Bilateral Filtering, LAB CLAHE, and Unsharp Masking to significantly enhance low-light, rainy, or blurry images prior to AI processing.
 - **AI Inference**: Uses `YOLOv8m` for complex scene analysis (triple-riding, no helmet, seatbelt, red light, and **wrong-side driving**).
-- **OCR Localization**: Crops to the exact bounding box of the violating vehicle *before* passing to EasyOCR, ensuring 95%+ accuracy even on low-res cameras.
+- **OCR Localization**: Crops to the exact bounding box of the violating vehicle *before* passing to EasyOCR, significantly improving plate extraction accuracy vs. full-frame OCR. Evaluated on internal test images using CLAHE, Otsu, and adaptive threshold variants.
 - **Privacy Shield**: Uses `cv2.GaussianBlur` to actively blur the faces/bodies of pedestrians and bystanders who are *not* part of the violation.
 - **Auto-Generated Dossiers**: Every processed violation generates a printable, exportable **PDF Enforcement Dossier** detailing the offender's risk score and movement timeline.
 
@@ -126,7 +126,7 @@ Open `http://localhost:3000` in your browser.
 
 ## 🚀 Future Roadmap
 
-- **Phase 1 (Current)**: Multi-Modal Image Analysis (Helmet, Seatbelt, Red Light, Tripling), Digital Twin, and LLM Intelligence.
-- **Phase 2 (Planned)**: Video Analysis Integration (Frame sampling + YOLO Object Tracking `model.track` to aggregate violations over time).
+- **Phase 1 (Current)**: Static Image Analysis, Digital Twin, and LLM Intelligence.
+- **Phase 2**: RTSP Camera Stream Integration (Live Video Processing).
 - **Phase 3**: Edge Deployment (Running quantized YOLO models directly on camera hardware).
 - **Phase 4**: Full Integration with existing e-Challan systems.

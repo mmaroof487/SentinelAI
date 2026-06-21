@@ -212,7 +212,14 @@ def analyze_traffic_scene(image_path: str, normalize: bool = False) -> dict:
                 
     if red_light_violation:
         violations.append("Red Light Violation")
-        
+
+    # --- 2b. Wrong-Side Driving Detection ---
+    # Uses Hough lane-line analysis on the road ROI to find the road centre.
+    # Flags any vehicle whose centre-x is right of the estimated road centre
+    # (India drives on the left; approaching vehicles should be on the left half).
+    if detect_wrong_side_driving(img_cv, vehicles):
+        violations.append("Wrong-Side Driving")
+
     # --- 3. Motorcycle Processing (Triple Riding, No Helmet) ---
     motorcycles = [b for b in boxes if int(b.cls[0]) == MOTORCYCLE_CLASS]
     persons = [b for b in boxes if int(b.cls[0]) == PERSON_CLASS]

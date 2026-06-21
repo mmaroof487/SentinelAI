@@ -3,14 +3,44 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
+import logging
 
 from app.config import settings
 from app.schema import create_tables, create_views, create_indexes
 from app.seed import seed_database
 
+logger = logging.getLogger(__name__)
+
+
+def ensure_helmet_model():
+    """Auto-download helmet detection model from HuggingFace if not present."""
+    model_path = settings.HELMET_MODEL_PATH
+    if not os.path.exists(model_path):
+        logger.warning("helmet.pt not found at '%s'. Attempting auto-download...", model_path)
+        try:
+            from huggingface_hub import hf_hub_download
+            os.makedirs(os.path.dirname(model_path) or ".", exist_ok=True)
+            downloaded = hf_hub_download(
+                repo_id="iam-tsr/yolov8n-helmet-detection",
+                filename="best.pt",
+                local_dir=os.path.dirname(model_path) or "models",
+            )
+            # Rename to expected filename
+            if downloaded != model_path:
+                import shutil
+                shutil.move(downloaded, model_path)
+            logger.info("helmet.pt downloaded successfully to '%s'.", model_path)
+        except Exception as exc:
+            logger.error(
+                "Could not auto-download helmet model: %s. "
+                "Run 'python download_helmet_model.py' manually.",
+                exc,
+            )
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
+    ensure_helmet_model()
     create_tables()
     create_views()
     create_indexes()
