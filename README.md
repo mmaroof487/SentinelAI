@@ -25,14 +25,15 @@ Most solutions:
 
 ```mermaid
 graph TD
-    A[Traffic Camera Feed] --> B[Detection Engine YOLOv8]
-    B --> C[Privacy Shield & Localization]
-    C --> D[EasyOCR Plate Recognition]
-    D --> E[(Violation Database SQLite)]
-    E --> F[Repeat Offender Engine]
-    F --> G[Corridor Intelligence]
-    G --> H[Gemini 2.0 Flash AI Agent]
-    H --> I[Command Center UI]
+    A[Traffic Camera Feed] --> B[Image Normalization & Enhancement]
+    B --> C[Detection Engine YOLOv8]
+    C --> D[Privacy Shield & Localization]
+    D --> E[EasyOCR Plate Recognition]
+    E --> F[(Violation Database SQLite)]
+    F --> G[Repeat Offender Engine]
+    G --> H[Corridor Intelligence]
+    H --> I[Gemini 2.0 Flash AI Agent]
+    I --> J[Command Center UI]
 ```
 
 ### 1. Command Center (The Digital Twin)
@@ -42,8 +43,9 @@ A Next.js-powered live dashboard featuring:
 - **System Boot Sequence**: An immersive, sci-fi boot sequence (`SystemBootOverlay`) that initiates the telemetry feeds.
 
 ### 2. Evidence Processing Pipeline
-- **AI Inference**: Uses `YOLOv8m` for triple-riding/helmet detection, followed by precise bounding-box cropping.
-- **OCR Localization**: Crops to the exact bounding box of the violating motorcycle *before* passing to EasyOCR, ensuring 95%+ accuracy even on low-res cameras.
+- **Image Normalization**: Optional toggle applies Bilateral Filtering, LAB CLAHE, and Unsharp Masking to significantly enhance low-light, rainy, or blurry images prior to AI processing.
+- **AI Inference**: Uses `YOLOv8m` for complex scene analysis (triple-riding, no helmet, seatbelt, red light, and **wrong-side driving**).
+- **OCR Localization**: Crops to the exact bounding box of the violating vehicle *before* passing to EasyOCR, ensuring 95%+ accuracy even on low-res cameras.
 - **Privacy Shield**: Uses `cv2.GaussianBlur` to actively blur the faces/bodies of pedestrians and bystanders who are *not* part of the violation.
 - **Auto-Generated Dossiers**: Every processed violation generates a printable, exportable **PDF Enforcement Dossier** detailing the offender's risk score and movement timeline.
 
