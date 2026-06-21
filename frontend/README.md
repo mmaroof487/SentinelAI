@@ -5,7 +5,7 @@ This is the Next.js frontend application for the SentinelAI Traffic Movement Int
 ## Features
 
 - **Command Center**: The primary dashboard showing the Digital Twin map, active alerts, repeat offenders, enforcement simulator, and live performance metrics.
-- **Evidence Processing**: An interface to upload traffic camera snapshots, run inference, view bounded boxes, blur bystanders via the Privacy Shield, and export PDF Dossiers.
+- **Evidence Processing**: An interface to upload traffic camera snapshots, optionally enhance low-quality images, run inference (including wrong-side driving detection), view bounded boxes, blur bystanders via the Privacy Shield, and export PDF Dossiers.
 - **Intelligence Engine**: A conversational AI interface backed by Google Gemini 2.0 Flash to query real-time database stats.
 - **Simulation**: Tools for predicting impact of targeted deployments and large-scale urban events.
 
