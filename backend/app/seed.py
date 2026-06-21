@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from app.models import Junction, Violation, Alert
+from app.models import Junction, Violation, Alert, VehicleRegistration
 
 # ============================================================
 # EXACT JUNCTION DATA — 15 Bengaluru junctions
@@ -252,6 +252,84 @@ def seed_database():
         for a in alerts:
             db.add(a)
         print(f"Seeded {len(alerts)} alerts.")
+
+        # --- 5. Insert Vehicle Registrations ---
+        owner_names = [
+            "Aarav Mehta", "Aditya Sharma", "Ananya Iyer", "Arjun Nair", "Devendra Patil",
+            "Ishaan Gupta", "Kavita Rao", "Meera Krishnan", "Nikhil Verma", "Pooja Hegde",
+            "Pranav Joshi", "Rahul Deshmukh", "Rohan Sen", "Sanjay Dutt", "Siddharth Roy",
+            "Sneha Reddy", "Tanvi Bhat", "Vikram Malhotra", "Yash Wardhan", "Zoya Khan"
+        ]
+        vehicles_pool = [
+            ("Two Wheeler", "Yamaha FZ-S V4"),
+            ("Two Wheeler", "Honda Activa 6G"),
+            ("Two Wheeler", "Royal Enfield Classic 350"),
+            ("Two Wheeler", "TVS Jupiter 125"),
+            ("Two Wheeler", "Suzuki Access 125"),
+            ("Two Wheeler", "KTM Duke 200"),
+            ("Two Wheeler", "Bajaj Pulsar NS200"),
+            ("Two Wheeler", "Hero Splendor Plus"),
+            ("LMV (Car)", "Maruti Swift"),
+            ("LMV (Car)", "Hyundai i20"),
+            ("LMV (Car)", "Tata Nexon"),
+            ("LMV (Car)", "Honda City"),
+            ("LMV (Car)", "Mahindra XUV700"),
+            ("LMV (Car)", "Toyota Fortuner"),
+            ("LMV (Car)", "Kia Seltos"),
+            ("Heavy Vehicle", "Tata Prima Truck"),
+            ("Heavy Vehicle", "BharatBenz Tipper"),
+            ("Heavy Vehicle", "Eicher Pro Bus"),
+        ]
+        rto_locations = [
+            "KA-01 Koramangala, Bengaluru",
+            "KA-02 Rajajinagar, Bengaluru",
+            "KA-03 Indiranagar, Bengaluru",
+            "KA-04 Yeshwanthpur, Bengaluru",
+            "KA-05 Jayanagar, Bengaluru",
+            "KA-51 Electronic City, Bengaluru",
+            "KA-09 Mysore West, Mysuru"
+        ]
+
+        seeded_registrations = 0
+        for idx, plate in enumerate(REPEAT_PLATES):
+            owner = owner_names[idx % len(owner_names)]
+            v_class, make_model = vehicles_pool[idx % len(vehicles_pool)]
+            rto = rto_locations[idx % len(rto_locations)]
+            
+            # Registration date: 1 to 5 years ago
+            reg_days_ago = random.randint(365, 1800)
+            reg_date = now - timedelta(days=reg_days_ago)
+            
+            # Insurance status: 90% valid, 10% expired
+            is_valid = random.random() < 0.90
+            if is_valid:
+                ins_status = "VALID"
+                ins_expiry = now + timedelta(days=random.randint(30, 730))
+            else:
+                ins_status = "EXPIRED"
+                ins_expiry = now - timedelta(days=random.randint(30, 365))
+                
+            # Threat-based status
+            reg_status = "ACTIVE"
+            if plate == "KA05MX4421":
+                reg_status = "BLACKLISTED"
+            elif idx == 5:
+                reg_status = "STOLEN"
+
+            reg = VehicleRegistration(
+                plate=plate,
+                owner_name=owner,
+                vehicle_class=v_class,
+                make_model=make_model,
+                registration_date=reg_date,
+                insurance_status=ins_status,
+                insurance_expiry=ins_expiry,
+                rto_location=rto,
+                status=reg_status
+            )
+            db.add(reg)
+            seeded_registrations += 1
+        print(f"Seeded {seeded_registrations} vehicle registrations.")
 
         db.commit()
         print("Seeding complete.")

@@ -44,3 +44,18 @@ class Alert(Base):
     action = Column(String, nullable=False)       # Recommended action text
     created_at = Column(DateTime, nullable=False, default=func.now())
     status = Column(String, default="ACTIVE")     # "ACTIVE", "ACKNOWLEDGED"
+
+
+class VehicleRegistration(Base):
+    __tablename__ = "vehicle_registrations"
+
+    plate = Column(String, primary_key=True, unique=True)
+    owner_name = Column(String, nullable=False)
+    vehicle_class = Column(String, nullable=False)     # "Two Wheeler", "LMV (Car)", "Heavy Vehicle"
+    make_model = Column(String, nullable=False)        # e.g., "Yamaha FZ", "Royal Enfield Classic 350", etc.
+    registration_date = Column(DateTime, nullable=False)
+    insurance_status = Column(String, nullable=False)  # "VALID" or "EXPIRED"
+    insurance_expiry = Column(DateTime, nullable=False)
+    rto_location = Column(String, nullable=False)      # e.g., "KA-05 Jayanagar, Bengaluru"
+    status = Column(String, default="ACTIVE")          # "ACTIVE", "BLACKLISTED", "STOLEN"
+

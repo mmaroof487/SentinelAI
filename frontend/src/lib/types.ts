@@ -93,6 +93,18 @@ export interface ZoneStat {
   top_type: string;
 }
 
+export interface VehicleRegistration {
+  plate: string;
+  owner_name: string;
+  vehicle_class: string;
+  make_model: string;
+  registration_date: string;
+  insurance_status: string;
+  insurance_expiry: string;
+  rto_location: string;
+  status: string;
+}
+
 export interface DetectionResult {
   case_id: string;
   violation: string;
@@ -101,9 +113,11 @@ export interface DetectionResult {
   plate_confidence: number;
   is_repeat_offender: boolean;
   repeat_offender_data: RepeatOffender | null;
+  registration?: VehicleRegistration | null;
   annotated_image_url: string;
   junction: string;
   timestamp: string;
+  traffic_light_state?: "RED" | "GREEN" | "UNKNOWN";
   inference_time?: {
     detection_ms: number;
     ocr_ms: number;
@@ -179,6 +193,7 @@ export interface Dossier {
   recommended_action: string;
   status: string;
   evidence_count: number;
+  registration?: VehicleRegistration | null;
 }
 
 export interface ActionPlan {
