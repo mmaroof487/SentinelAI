@@ -177,7 +177,7 @@ def analyze_traffic_scene(image_path: str, normalize: bool = False) -> dict:
     if normalize:
         img_cv = normalize_image(img_cv)
 
-    results = model(img_cv, verbose=False)
+    results = model(img_cv, imgsz=640, verbose=False)
     boxes = results[0].boxes
         
     img_height, img_width = img_cv.shape[:2]
@@ -243,7 +243,7 @@ def analyze_traffic_scene(image_path: str, normalize: bool = False) -> dict:
                     hx2, hy2 = min(img_width, int(px2)), min(img_height, int(py2))
                     if hx2 > hx1 and hy2 > hy1:
                         crop = img_cv[hy1:hy2, hx1:hx2]
-                        h_results = helmet_model(crop, verbose=False)
+                        h_results = helmet_model(crop, imgsz=160, verbose=False)
                         if h_results and h_results[0].boxes:
                             for hb in h_results[0].boxes:
                                 if int(hb.cls[0]) == 1 and float(hb.conf[0]) > 0.4:
